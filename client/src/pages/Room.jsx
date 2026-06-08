@@ -7,36 +7,53 @@ function Room() {
 
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [participants, setParticipants] = useState([]);
 
   useEffect(() => {
     socket.emit("join-room", roomId);
 
     socket.on("receive-message", (data) => {
-  console.log("MESSAGE ARRIVED:", data);
+      console.log("MESSAGE ARRIVED:", data);
 
-  setMessages((prev) => [...prev, data]);
-});
+      setMessages((prev) => [...prev, data]);
+    });
+
+    socket.on("participants-update", (users) => {
+      setParticipants(users);
+    });
+
     return () => {
       socket.off("receive-message");
+      socket.off("participants-update");
     };
   }, [roomId]);
 
   const sendMessage = () => {
-  console.log("SEND CLICKED");
+    console.log("SEND CLICKED");
 
-  if (!message.trim()) return;
+    if (!message.trim()) return;
 
-  socket.emit("send-message", {
-    roomId,
-    message,
-  });
+    socket.emit("send-message", {
+      roomId,
+      message,
+    });
 
-  setMessage("");
-};
+    setMessage("");
+  };
 
   return (
     <div>
       <h1>Room: {roomId}</h1>
+
+      <h2>Participants</h2>
+
+      <ul>
+        {participants.map((user) => (
+          <li key={user}>{user}</li>
+        ))}
+      </ul>
+
+      <hr />
 
       <input
         value={message}
