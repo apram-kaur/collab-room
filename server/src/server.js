@@ -1,3 +1,5 @@
+const rooms = {};
+
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
@@ -12,39 +14,67 @@ app.get("/", (req, res) => {
   res.send("Server Running 🚀");
 });
 
-// Create HTTP server
 const server = http.createServer(app);
 
-// Create Socket.io server
 const io = new Server(server, {
   cors: {
     origin: "*",
   },
 });
 
-
 const PORT = 5000;
+
 io.on("connection", (socket) => {
   console.log("User Connected:", socket.id);
 
   socket.on("join-room", (roomId) => {
     socket.join(roomId);
 
-    socket.on("send-message", (data) => {
-  console.log("MESSAGE RECEIVED:", data);
+    if (!rooms[roomId]) {
+      rooms[roomId] = [];
+    }
 
-  io.to(data.roomId).emit("receive-message", data);
-});
+    if (!rooms[roomId].includes(socket.id)) {
+      rooms[roomId].push(socket.id);
+    }
 
-    console.log(
-      `${socket.id} joined room ${roomId}`
+    io.to(roomId).emit(
+      "participants-update",
+      rooms[roomId]
+    );
+
+    console.log(`${socket.id} joined room ${roomId}`);
+  });
+
+  socket.on("send-message", (data) => {
+    console.log("MESSAGE RECEIVED:", data);
+
+    io.to(data.roomId).emit(
+      "receive-message",
+      data
     );
   });
 
   socket.on("disconnect", () => {
+    for (const roomId in rooms) {
+      rooms[roomId] = rooms[roomId].filter(
+        (id) => id !== socket.id
+      );
+
+      io.to(roomId).emit(
+        "participants-update",
+        rooms[roomId]
+      );
+
+      if (rooms[roomId].length === 0) {
+        delete rooms[roomId];
+      }
+    }
+
     console.log("User Disconnected:", socket.id);
   });
 });
+
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
