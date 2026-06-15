@@ -27,15 +27,23 @@ const PORT = 5000;
 io.on("connection", (socket) => {
   console.log("User Connected:", socket.id);
 
-  socket.on("join-room", (roomId) => {
+  // JOIN ROOM
+  socket.on("join-room", ({ roomId, username }) => {
     socket.join(roomId);
 
     if (!rooms[roomId]) {
       rooms[roomId] = [];
     }
 
-    if (!rooms[roomId].includes(socket.id)) {
-      rooms[roomId].push(socket.id);
+    const exists = rooms[roomId].find(
+      (user) => user.id === socket.id
+    );
+
+    if (!exists) {
+      rooms[roomId].push({
+        id: socket.id,
+        username,
+      });
     }
 
     io.to(roomId).emit(
@@ -43,9 +51,10 @@ io.on("connection", (socket) => {
       rooms[roomId]
     );
 
-    console.log(`${socket.id} joined room ${roomId}`);
+    console.log(`${username} joined room ${roomId}`);
   });
 
+  // CHAT
   socket.on("send-message", (data) => {
     console.log("MESSAGE RECEIVED:", data);
 
@@ -55,10 +64,11 @@ io.on("connection", (socket) => {
     );
   });
 
+  // DISCONNECT
   socket.on("disconnect", () => {
     for (const roomId in rooms) {
       rooms[roomId] = rooms[roomId].filter(
-        (id) => id !== socket.id
+        (user) => user.id !== socket.id
       );
 
       io.to(roomId).emit(
