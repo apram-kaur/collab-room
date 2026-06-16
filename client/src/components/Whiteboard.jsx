@@ -4,6 +4,7 @@ function Whiteboard() {
   const canvasRef = useRef(null);
 
   const [drawing, setDrawing] = useState(false);
+  const [color, setColor] = useState("#000000");
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -15,15 +16,20 @@ function Whiteboard() {
 
     ctx.lineWidth = 3;
     ctx.lineCap = "round";
-    ctx.strokeStyle = "black";
-  }, []);
+    ctx.strokeStyle = color;
+  }, [color]);
 
   const startDrawing = (e) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
+    ctx.strokeStyle = color;
+
     ctx.beginPath();
-    ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+    ctx.moveTo(
+      e.nativeEvent.offsetX,
+      e.nativeEvent.offsetY
+    );
 
     setDrawing(true);
   };
@@ -49,6 +55,21 @@ function Whiteboard() {
   return (
     <div>
       <h2>Whiteboard</h2>
+
+      <label>
+        Pick a color:{" "}
+      </label>
+
+      <input
+        type="color"
+        value={color}
+        onChange={(e) =>
+          setColor(e.target.value)
+        }
+      />
+
+      <br />
+      <br />
 
       <canvas
         ref={canvasRef}
