@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import socket from "../socket";
+import Whiteboard from "../components/Whiteboard";
 
 function Room() {
   const { roomId } = useParams();
@@ -13,17 +14,21 @@ function Room() {
   const [participants, setParticipants] = useState([]);
 
   useEffect(() => {
-    socket.emit("join-room", {
-      roomId,
-      username,
-    });
-
+    // Listen for incoming messages
     socket.on("receive-message", (data) => {
       setMessages((prev) => [...prev, data]);
     });
 
+    // Listen for participant updates
     socket.on("participants-update", (users) => {
+      console.log("Participants:", users);
       setParticipants(users);
+    });
+
+    // Join the room AFTER listeners are ready
+    socket.emit("join-room", {
+      roomId,
+      username,
     });
 
     return () => {
@@ -59,6 +64,9 @@ function Room() {
           </li>
         ))}
       </ul>
+
+      <h2>Whiteboard</h2>
+      <Whiteboard />
 
       <hr />
 
