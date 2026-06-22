@@ -64,6 +64,22 @@ io.on("connection", (socket) => {
     );
   });
 
+  // DRAWING
+  socket.on("drawing", (data) => {
+    console.log("DRAW EVENT:", data);
+
+    socket.to(data.roomId).emit(
+      "drawing",
+      data
+    );
+  });
+
+  socket.on("stop-drawing", (data) => {
+  socket.to(data.roomId).emit(
+    "stop-drawing"
+  );
+});
+
   // DISCONNECT
   socket.on("disconnect", () => {
     for (const roomId in rooms) {

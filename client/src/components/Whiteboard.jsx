@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "react";
+import socket from "../socket";
 
-function Whiteboard() {
+function Whiteboard({ roomId }) {
   const canvasRef = useRef(null);
 
   const [drawing, setDrawing] = useState(false);
@@ -16,28 +17,74 @@ function Whiteboard() {
 
     const ctx = canvas.getContext("2d");
 
-    ctx.lineWidth = brushSize;
     ctx.lineCap = "round";
-    ctx.strokeStyle = color;
+  }, []);
 
-  }, [color, brushSize]);
+  useEffect(() => {
+    socket.on("start-drawing", (data) => {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext("2d");
+
+      ctx.beginPath();
+      ctx.moveTo(data.x, data.y);
+
+      ctx.strokeStyle = data.color;
+      ctx.lineWidth = data.brushSize;
+    });
+
+    socket.on("drawing", (data) => {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext("2d");
+
+      ctx.strokeStyle = data.color;
+      ctx.lineWidth = data.brushSize;
+
+      ctx.lineTo(data.x, data.y);
+      ctx.stroke();
+    });
+
+    socket.on("stop-drawing", () => {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext("2d");
+
+      ctx.beginPath();
+    });
+
+    return () => {
+      socket.off("start-drawing");
+      socket.off("drawing");
+      socket.off("stop-drawing");
+    };
+  }, []);
 
   const startDrawing = (e) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
-    if (isErasing) {
-  ctx.strokeStyle = "white";
-  ctx.lineWidth = 20;
-} else {
-  ctx.strokeStyle = color;
-  ctx.lineWidth = brushSize;
-}
+    const x = e.nativeEvent.offsetX;
+    const y = e.nativeEvent.offsetY;
+
+    const currentColor = isErasing
+      ? "white"
+      : color;
+
+    const currentBrushSize = isErasing
+      ? 20
+      : brushSize;
+
     ctx.beginPath();
-    ctx.moveTo(
-      e.nativeEvent.offsetX,
-      e.nativeEvent.offsetY
-    );
+    ctx.moveTo(x, y);
+
+    ctx.strokeStyle = currentColor;
+    ctx.lineWidth = currentBrushSize;
+
+    socket.emit("start-drawing", {
+      roomId,
+      x,
+      y,
+      color: currentColor,
+      brushSize: currentBrushSize,
+    });
 
     setDrawing(true);
   };
@@ -48,36 +95,46 @@ function Whiteboard() {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
-    ctx.lineTo(
-      e.nativeEvent.offsetX,
-      e.nativeEvent.offsetY
-    );
+    const x = e.nativeEvent.offsetX;
+    const y = e.nativeEvent.offsetY;
 
+    ctx.lineTo(x, y);
     ctx.stroke();
+
+    socket.emit("drawing", {
+      roomId,
+      x,
+      y,
+      color: isErasing ? "white" : color,
+      brushSize: isErasing ? 20 : brushSize,
+    });
   };
 
   const stopDrawing = () => {
     setDrawing(false);
-  };
-  const clearBoard = () => {
-  const canvas = canvasRef.current;
-  const ctx = canvas.getContext("2d");
 
-  ctx.clearRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-};
+    socket.emit("stop-drawing", {
+      roomId,
+    });
+  };
+
+  const clearBoard = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+
+    ctx.clearRect(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+  };
 
   return (
     <div>
       <h2>Whiteboard</h2>
 
-      <label>
-        Pick a color:{" "}
-      </label>
+      <label>Pick a color: </label>
 
       <input
         type="color"
@@ -87,48 +144,48 @@ function Whiteboard() {
         }
       />
 
-      <label>
-  Brush Size:
-</label>
+      <label> Brush Size: </label>
 
-<select
-  value={brushSize}
-  onChange={(e) =>
-    setBrushSize(Number(e.target.value))
-  }
->
-  <option value={2}>Small</option>
-  <option value={5}>Medium</option>
-  <option value={10}>Large</option>
-  <option value={20}>Extra Large</option>
-</select>
-
-<br />
-<br />
+      <select
+        value={brushSize}
+        onChange={(e) =>
+          setBrushSize(Number(e.target.value))
+        }
+      >
+        <option value={2}>Small</option>
+        <option value={5}>Medium</option>
+        <option value={10}>Large</option>
+        <option value={20}>Extra Large</option>
+      </select>
 
       <br />
       <br />
-<button
-  onClick={() => setIsErasing(false)}
->
-  🖌 Draw
-</button>
 
-<button
-  onClick={() => setIsErasing(true)}
->
-  🧽 Eraser
-</button>
+      <button
+        onClick={() => setIsErasing(false)}
+      >
+        🖌 Draw
+      </button>
 
-<button onClick={clearBoard}>
-  🗑 Clear Board
-</button>
+      <button
+        onClick={() => setIsErasing(true)}
+      >
+        🧽 Eraser
+      </button>
 
-<br />
-<br />
-<p>
-  Mode: {isErasing ? "🧽 Eraser" : "🖌 Draw"}
-</p>
+      <button onClick={clearBoard}>
+        🗑 Clear Board
+      </button>
+
+      <br />
+      <br />
+
+      <p>
+        Mode:{" "}
+        {isErasing
+          ? "🧽 Eraser"
+          : "🖌 Draw"}
+      </p>
 
       <canvas
         ref={canvasRef}
@@ -141,7 +198,6 @@ function Whiteboard() {
         onMouseLeave={stopDrawing}
       />
     </div>
-   
   );
 }
 

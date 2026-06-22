@@ -66,7 +66,7 @@ function Room() {
       </ul>
 
       <h2>Whiteboard</h2>
-      <Whiteboard />
+       <Whiteboard roomId={roomId} />
 
       <hr />
 
