@@ -5,6 +5,8 @@ function Whiteboard() {
 
   const [drawing, setDrawing] = useState(false);
   const [color, setColor] = useState("#000000");
+  const [brushSize, setBrushSize] = useState(3);
+  const [isErasing, setIsErasing] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -14,17 +16,23 @@ function Whiteboard() {
 
     const ctx = canvas.getContext("2d");
 
-    ctx.lineWidth = 3;
+    ctx.lineWidth = brushSize;
     ctx.lineCap = "round";
     ctx.strokeStyle = color;
-  }, [color]);
+
+  }, [color, brushSize]);
 
   const startDrawing = (e) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
-    ctx.strokeStyle = color;
-
+    if (isErasing) {
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 20;
+} else {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = brushSize;
+}
     ctx.beginPath();
     ctx.moveTo(
       e.nativeEvent.offsetX,
@@ -51,6 +59,17 @@ function Whiteboard() {
   const stopDrawing = () => {
     setDrawing(false);
   };
+  const clearBoard = () => {
+  const canvas = canvasRef.current;
+  const ctx = canvas.getContext("2d");
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+};
 
   return (
     <div>
@@ -68,8 +87,48 @@ function Whiteboard() {
         }
       />
 
+      <label>
+  Brush Size:
+</label>
+
+<select
+  value={brushSize}
+  onChange={(e) =>
+    setBrushSize(Number(e.target.value))
+  }
+>
+  <option value={2}>Small</option>
+  <option value={5}>Medium</option>
+  <option value={10}>Large</option>
+  <option value={20}>Extra Large</option>
+</select>
+
+<br />
+<br />
+
       <br />
       <br />
+<button
+  onClick={() => setIsErasing(false)}
+>
+  🖌 Draw
+</button>
+
+<button
+  onClick={() => setIsErasing(true)}
+>
+  🧽 Eraser
+</button>
+
+<button onClick={clearBoard}>
+  🗑 Clear Board
+</button>
+
+<br />
+<br />
+<p>
+  Mode: {isErasing ? "🧽 Eraser" : "🖌 Draw"}
+</p>
 
       <canvas
         ref={canvasRef}
@@ -82,6 +141,7 @@ function Whiteboard() {
         onMouseLeave={stopDrawing}
       />
     </div>
+   
   );
 }
 
