@@ -80,6 +80,14 @@ io.on("connection", (socket) => {
   );
 });
 
+// CODE EDITOR
+socket.on("code-change", (data) => {
+  socket.to(data.roomId).emit(
+    "code-change",
+    data.code
+  );
+});
+
   // DISCONNECT
   socket.on("disconnect", () => {
     for (const roomId in rooms) {

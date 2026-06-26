@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import socket from "../socket";
 import Whiteboard from "../components/Whiteboard";
+import CodeEditor from "../components/CodeEditor";
 
 function Room() {
   const { roomId } = useParams();
@@ -69,7 +70,12 @@ function Room() {
        <Whiteboard roomId={roomId} />
 
       <hr />
+    
+    <hr />
 
+<CodeEditor roomId={roomId} />
+
+<hr /> 
       <input
         value={message}
         onChange={(e) => setMessage(e.target.value)}
