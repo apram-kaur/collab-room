@@ -1,0 +1,224 @@
+/* ======= PAGE ======= */
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #0f172a;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.room-container {
+  width: 95%;
+  max-width: 1400px;
+  margin: auto;
+  padding: 25px;
+}
+
+/* ======= HEADER ======= */
+
+.room-header {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 20px 30px;
+  margin-bottom: 25px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.room-header h1 {
+  margin: 0;
+  color: #38bdf8;
+}
+
+.room-header h3 {
+  margin: 5px 0 0;
+  color: #cbd5e1;
+  font-weight: normal;
+}
+
+/* ======= PARTICIPANTS + CHAT ======= */
+
+.top-section {
+  display: flex;
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+/* ===== Participants ===== */
+
+.participants {
+  width: 280px;
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 20px;
+
+  box-shadow: 0 4px 15px rgba(0,0,0,.3);
+}
+
+.participants h2 {
+  margin-top: 0;
+  color: #38bdf8;
+}
+
+.participants ul {
+  list-style: none;
+  padding: 0;
+}
+
+.participants li {
+  padding: 10px;
+  margin-bottom: 10px;
+
+  background: #334155;
+
+  border-radius: 8px;
+
+  transition: .2s;
+}
+
+.participants li:hover {
+  background: #475569;
+}
+
+/* ===== Chat ===== */
+
+.chat {
+  flex: 1;
+
+  background: #1e293b;
+
+  border-radius: 12px;
+
+  padding: 20px;
+
+  display: flex;
+  flex-direction: column;
+
+  box-shadow: 0 4px 15px rgba(0,0,0,.3);
+}
+
+.chat h2 {
+  margin-top: 0;
+  color: #38bdf8;
+}
+
+.chat-box {
+  flex: 1;
+
+  min-height: 220px;
+  max-height: 220px;
+
+  overflow-y: auto;
+
+  background: #0f172a;
+
+  padding: 15px;
+
+  border-radius: 8px;
+
+  margin-bottom: 15px;
+}
+
+.chat-box p {
+  margin: 8px 0;
+}
+
+.chat-input {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+
+  padding: 12px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  outline: none;
+
+  background: #334155;
+
+  color: white;
+}
+
+.chat-input button {
+  background: #38bdf8;
+
+  color: white;
+
+  border: none;
+
+  padding: 12px 22px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition: .2s;
+}
+
+.chat-input button:hover {
+  background: #0ea5e9;
+}
+
+/* ===== Whiteboard ===== */
+
+.whiteboard-section {
+
+  background: #1e293b;
+
+  padding: 20px;
+
+  border-radius: 12px;
+
+  margin-bottom: 30px;
+
+  box-shadow: 0 4px 15px rgba(0,0,0,.3);
+}
+
+.whiteboard-section h2 {
+  margin-top: 0;
+  color: #38bdf8;
+}
+
+/* ===== Code Editor ===== */
+
+.editor-section {
+
+  background: #1e293b;
+
+  padding: 20px;
+
+  border-radius: 12px;
+
+  margin-bottom: 30px;
+
+  box-shadow: 0 4px 15px rgba(0,0,0,.3);
+}
+
+.editor-section h2 {
+  margin-top: 0;
+  color: #38bdf8;
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 900px) {
+
+  .top-section {
+    flex-direction: column;
+  }
+
+  .participants {
+    width: auto;
+  }
+
+}

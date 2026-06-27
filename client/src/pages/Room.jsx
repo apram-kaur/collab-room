@@ -1,3 +1,4 @@
+import "./Room.css";
 import { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import socket from "../socket";
@@ -50,51 +51,72 @@ function Room() {
     setMessage("");
   };
 
-  return (
-    <div>
-      <h1>Room: {roomId}</h1>
+ return (
+  <div className="room-container">
 
-      <h3>Welcome, {username}!</h3>
+    <div className="room-header">
+      <div>
+        <h1>💻 Collab Room</h1>
+        <h3>Room ID: {roomId}</h3>
+      </div>
 
-      <h2>Participants</h2>
-
-      <ul>
-        {participants.map((user) => (
-          <li key={user.id}>
-            🟢 {user.username}
-          </li>
-        ))}
-      </ul>
-
-      <h2>Whiteboard</h2>
-       <Whiteboard roomId={roomId} />
-
-      <hr />
-    
-    <hr />
-
-<CodeEditor roomId={roomId} />
-
-<hr /> 
-      <input
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type message"
-      />
-
-      <button onClick={sendMessage}>
-        Send
-      </button>
-
-      <hr />
-
-      {messages.map((msg, index) => (
-        <p key={index}>
-          <strong>{msg.username}:</strong> {msg.message}
-        </p>
-      ))}
+      <h3>👋 Welcome, {username}</h3>
     </div>
-  );
+
+    <div className="top-section">
+
+      <div className="participants">
+        <h2>Participants</h2>
+
+        <ul>
+          {participants.map((user) => (
+            <li key={user.id}>
+              🟢 {user.username}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="chat">
+
+        <h2>Chat</h2>
+
+        <div className="chat-box">
+          {messages.map((msg, index) => (
+            <p key={index}>
+              <strong>{msg.username}:</strong> {msg.message}
+            </p>
+          ))}
+        </div>
+
+        <div className="chat-input">
+          <input
+            value={message}
+            onChange={(e) =>
+              setMessage(e.target.value)
+            }
+            placeholder="Type a message..."
+          />
+
+          <button onClick={sendMessage}>
+            Send
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div className="whiteboard-section">
+      <Whiteboard roomId={roomId} />
+    </div>
+
+    <div className="editor-section">
+      <CodeEditor roomId={roomId} />
+    </div>
+
+  </div>
+);
 }
 
 export default Room;

@@ -1,3 +1,4 @@
+import "./Whiteboard.css";
 import { useRef, useEffect, useState } from "react";
 import socket from "../socket";
 
@@ -16,7 +17,6 @@ function Whiteboard({ roomId }) {
     canvas.height = 500;
 
     const ctx = canvas.getContext("2d");
-
     ctx.lineCap = "round";
   }, []);
 
@@ -64,13 +64,8 @@ function Whiteboard({ roomId }) {
     const x = e.nativeEvent.offsetX;
     const y = e.nativeEvent.offsetY;
 
-    const currentColor = isErasing
-      ? "white"
-      : color;
-
-    const currentBrushSize = isErasing
-      ? 20
-      : brushSize;
+    const currentColor = isErasing ? "white" : color;
+    const currentBrushSize = isErasing ? 20 : brushSize;
 
     ctx.beginPath();
     ctx.moveTo(x, y);
@@ -122,81 +117,78 @@ function Whiteboard({ roomId }) {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
-    ctx.clearRect(
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
 
   return (
-    <div>
-      <h2>Whiteboard</h2>
+    <div className="whiteboard-container">
 
-      <label>Pick a color: </label>
+      <h2>🎨 Whiteboard</h2>
 
-      <input
-        type="color"
-        value={color}
-        onChange={(e) =>
-          setColor(e.target.value)
-        }
-      />
+      <div className="toolbar">
 
-      <label> Brush Size: </label>
+        <label>Color</label>
 
-      <select
-        value={brushSize}
-        onChange={(e) =>
-          setBrushSize(Number(e.target.value))
-        }
-      >
-        <option value={2}>Small</option>
-        <option value={5}>Medium</option>
-        <option value={10}>Large</option>
-        <option value={20}>Extra Large</option>
-      </select>
+        <input
+          type="color"
+          value={color}
+          onChange={(e) => setColor(e.target.value)}
+        />
 
-      <br />
-      <br />
+        <label>Brush</label>
 
-      <button
-        onClick={() => setIsErasing(false)}
-      >
-        🖌 Draw
-      </button>
+        <select
+          value={brushSize}
+          onChange={(e) =>
+            setBrushSize(Number(e.target.value))
+          }
+        >
+          <option value={2}>Small</option>
+          <option value={5}>Medium</option>
+          <option value={10}>Large</option>
+          <option value={20}>Extra Large</option>
+        </select>
 
-      <button
-        onClick={() => setIsErasing(true)}
-      >
-        🧽 Eraser
-      </button>
+        <button
+          className={`tool-btn ${
+            !isErasing ? "active" : ""
+          }`}
+          onClick={() => setIsErasing(false)}
+        >
+          🖌 Draw
+        </button>
 
-      <button onClick={clearBoard}>
-        🗑 Clear Board
-      </button>
+        <button
+          className={`tool-btn ${
+            isErasing ? "active" : ""
+          }`}
+          onClick={() => setIsErasing(true)}
+        >
+          🧽 Eraser
+        </button>
 
-      <br />
-      <br />
+        <button
+          className="tool-btn"
+          onClick={clearBoard}
+        >
+          🗑 Clear Board
+        </button>
 
-      <p>
-        Mode:{" "}
-        {isErasing
-          ? "🧽 Eraser"
-          : "🖌 Draw"}
+      </div>
+
+      <p className="mode-text">
+        Current Mode:{" "}
+        {isErasing ? "🧽 Eraser" : "🖌 Draw"}
       </p>
 
       <canvas
         ref={canvasRef}
-        style={{
-          border: "2px solid black",
-        }}
         onMouseDown={startDrawing}
         onMouseMove={draw}
         onMouseUp={stopDrawing}
         onMouseLeave={stopDrawing}
       />
+
     </div>
   );
 }
