@@ -1,5 +1,8 @@
+import "./Home.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import mascot from "../assets/mascot1.png"; // <-- change filename if needed
 
 function Home() {
   const [username, setUsername] = useState("");
@@ -18,30 +21,55 @@ function Home() {
   };
 
   return (
-    <div>
-      <h1>Collaborative Coding Room</h1>
+    <div className="home-page">
 
-      <input
-        placeholder="Enter Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
+      <div className="home-card">
 
-      <br />
-      <br />
+        <img
+          src={mascot}
+          alt="Collab Room"
+          className="home-logo"
+        />
 
-      <input
-        placeholder="Enter Room ID"
-        value={roomId}
-        onChange={(e) => setRoomId(e.target.value)}
-      />
+        <h1 className="home-title">
+          Collab Room
+        </h1>
 
-      <br />
-      <br />
+        <p className="home-subtitle">
+          Code • Draw • Collaborate Together
+        </p>
 
-      <button onClick={joinRoom}>
-        Join Room
-      </button>
+        <div className="input-group">
+
+          <input
+            type="text"
+            placeholder="👤  Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+
+          <input
+            type="text"
+            placeholder="🔑  Room ID"
+            value={roomId}
+            onChange={(e) => setRoomId(e.target.value)}
+          />
+
+        </div>
+
+        <button
+          className="join-btn"
+          onClick={joinRoom}
+        >
+          ✨ Join Workspace
+        </button>
+
+        <p className="footer-text">
+          Real-time coding • Whiteboard • Chat
+        </p>
+
+      </div>
+
     </div>
   );
 }
