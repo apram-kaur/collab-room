@@ -152,16 +152,22 @@ function Room() {
 
       </div>
 
-      {/* ================= WHITEBOARD ================= */}
+      {/* ================= WORKSPACE ================= */}
 
-      <div className="whiteboard-section">
-        <Whiteboard roomId={roomId} />
-      </div>
+      <div className="workspace">
 
-      {/* ================= CODE EDITOR ================= */}
+        {/* Whiteboard */}
 
-      <div className="editor-section">
-        <CodeEditor roomId={roomId} />
+        <div className="whiteboard-section">
+          <Whiteboard roomId={roomId} />
+        </div>
+
+        {/* Code Editor */}
+
+        <div className="editor-section">
+          <CodeEditor roomId={roomId} />
+        </div>
+
       </div>
 
     </div>
