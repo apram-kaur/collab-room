@@ -1,44 +1,30 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Pacifico&display=swap");
 
-/* ===========================
-   GLOBAL
-=========================== */
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
+/* ========= BACKGROUND ========= */
 
 body{
+
+    margin:0;
 
     font-family:"Inter",sans-serif;
 
     background:
     radial-gradient(circle at top right,
     rgba(236,72,153,.20),
-    transparent 30%),
+    transparent 35%),
 
     radial-gradient(circle at bottom left,
     rgba(168,85,247,.18),
-    transparent 35%),
+    transparent 40%),
 
-    radial-gradient(circle at center,
-    rgba(139,92,246,.08),
-    transparent 45%),
-
-    #10091d;
+    #14091f;
 
     color:white;
-
-    min-height:100vh;
 }
 
-/* ===========================
-   PAGE
-=========================== */
+/* ========= PAGE ========= */
 
-.home-page{
+.home{
 
     min-height:100vh;
 
@@ -51,166 +37,92 @@ body{
     padding:40px;
 }
 
-/* ===========================
-   CARD
-=========================== */
+/* ========= CARD ========= */
 
 .home-card{
 
-    width:100%;
+    width:500px;
 
-    max-width:620px;
+    background:rgba(34,18,53,.85);
 
-    padding:55px 50px;
+    backdrop-filter:blur(18px);
 
-    text-align:center;
-
-    background:
-    rgba(32,20,52,.82);
-
-    backdrop-filter:blur(22px);
+    border:1px solid rgba(255,255,255,.06);
 
     border-radius:32px;
 
-    border:1px solid rgba(255,255,255,.08);
+    padding:55px 45px;
+
+    text-align:center;
 
     box-shadow:
     0 25px 60px rgba(0,0,0,.45);
-
-    transition:.35s;
 }
 
-.home-card:hover{
-
-    transform:translateY(-5px);
-
-    box-shadow:
-    0 35px 70px rgba(236,72,153,.15);
-}
-
-/* ===========================
-   LOGO
-=========================== */
+/* ========= LOGO ========= */
 
 .home-logo{
 
-    width:130px;
-
-    height:130px;
-
-    object-fit:cover;
+    width:120px;
+    height:120px;
 
     border-radius:50%;
 
-    margin-bottom:25px;
+    object-fit:cover;
 
-    border:5px solid rgba(255,255,255,.08);
+    margin-bottom:20px;
 }
 
-/* ===========================
-   TITLE
-=========================== */
+/* ========= TITLE ========= */
 
-.home-title{
+.home-card h1{
 
     font-family:"Pacifico",cursive;
 
     font-size:64px;
 
-    font-weight:400;
-
-    margin-bottom:12px;
+    margin:0;
 
     background:
     linear-gradient(
     90deg,
     #f9a8d4,
-    #d8b4fe);
+    #c084fc);
 
     -webkit-background-clip:text;
-
     -webkit-text-fill-color:transparent;
 }
 
-.home-subtitle{
+/* ========= TEXT ========= */
+
+.tagline{
+
+    margin:20px 0 45px;
 
     color:#d8b4fe;
 
     font-size:18px;
 
-    margin-bottom:40px;
+    line-height:1.8;
 }
 
-/* ===========================
-   INPUTS
-=========================== */
+/* ========= BUTTONS ========= */
 
-.input-group{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:18px;
-
-    margin-bottom:35px;
-}
-
-.input-group input{
+.primary-btn{
 
     width:100%;
 
-    padding:18px 22px;
-
     border:none;
-
-    outline:none;
-
-    border-radius:18px;
-
-    background:#24173e;
-
-    color:white;
-
-    font-size:16px;
-
-    transition:.3s;
-
-    border:1px solid transparent;
-}
-
-.input-group input::placeholder{
-
-    color:#b8a9df;
-}
-
-.input-group input:focus{
-
-    border-color:#c084fc;
-
-    box-shadow:
-    0 0 18px rgba(192,132,252,.22);
-}
-
-/* ===========================
-   BUTTON
-=========================== */
-
-.join-btn{
-
-    width:100%;
-
-    padding:18px;
-
-    border:none;
-
-    border-radius:18px;
 
     cursor:pointer;
 
+    padding:18px;
+
+    border-radius:18px;
+
     font-size:18px;
 
-    font-weight:600;
+    font-weight:700;
 
     color:white;
 
@@ -223,55 +135,55 @@ body{
     transition:.3s;
 }
 
-.join-btn:hover{
+.primary-btn:hover{
 
     transform:translateY(-3px);
 
     box-shadow:
-    0 18px 35px rgba(236,72,153,.35);
+    0 15px 35px rgba(236,72,153,.35);
 }
 
-/* ===========================
-   FOOTER
-=========================== */
+.secondary-btn{
 
-.footer-text{
+    width:100%;
 
-    margin-top:28px;
+    margin-top:18px;
 
-    color:#9f8fc8;
+    padding:16px;
 
-    font-size:14px;
+    border-radius:18px;
 
-    letter-spacing:.5px;
+    cursor:pointer;
+
+    background:transparent;
+
+    border:2px solid #8b5cf6;
+
+    color:#d8b4fe;
+
+    font-size:17px;
+
+    font-weight:600;
+
+    transition:.3s;
 }
 
-/* ===========================
-   RESPONSIVE
-=========================== */
+.secondary-btn:hover{
 
-@media(max-width:700px){
+    background:#8b5cf620;
 
-.home-card{
+    border-color:#ec4899;
 
-    padding:40px 25px;
+    color:white;
 }
 
-.home-title{
+/* ========= DIVIDER ========= */
 
-    font-size:50px;
-}
+.divider{
 
-.home-logo{
+    margin-top:35px;
 
-    width:100px;
+    color:#a78bfa;
 
-    height:100px;
-}
-
-.home-subtitle{
-
-    font-size:16px;
-}
-
+    font-size:15px;
 }

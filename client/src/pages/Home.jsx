@@ -1,76 +1,45 @@
 import "./Home.css";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
-import mascot from "../assets/mascot1.png"; // <-- change filename if needed
+import mascot from "../assets/mascot1.png";
 
 function Home() {
-  const [username, setUsername] = useState("");
-  const [roomId, setRoomId] = useState("");
-
-  const navigate = useNavigate();
-
-  const joinRoom = () => {
-    if (!username || !roomId) return;
-
-    navigate(`/room/${roomId}`, {
-      state: {
-        username,
-      },
-    });
-  };
 
   return (
-    <div className="home-page">
+
+    <div className="home">
 
       <div className="home-card">
 
         <img
           src={mascot}
-          alt="Collab Room"
+          alt="Mascot"
           className="home-logo"
         />
 
-        <h1 className="home-title">
-          Collab Room
-        </h1>
+        <h1>Collab Room</h1>
 
-        <p className="home-subtitle">
-          Code • Draw • Collaborate Together
+        <p className="tagline">
+          Code together. Draw together.
+          <br />
+          Build together.
         </p>
 
-        <div className="input-group">
-
-          <input
-            type="text"
-            placeholder="👤  Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-
-          <input
-            type="text"
-            placeholder="🔑  Room ID"
-            value={roomId}
-            onChange={(e) => setRoomId(e.target.value)}
-          />
-
-        </div>
-
-        <button
-          className="join-btn"
-          onClick={joinRoom}
-        >
-          ✨ Join Workspace
+        <button className="primary-btn">
+          + Create Room
         </button>
 
-        <p className="footer-text">
-          Real-time coding • Whiteboard • Chat
-        </p>
+        <div className="divider">
+          Already have a room?
+        </div>
+
+        <button className="secondary-btn">
+          Join Existing Room
+        </button>
 
       </div>
 
     </div>
+
   );
 }
 
