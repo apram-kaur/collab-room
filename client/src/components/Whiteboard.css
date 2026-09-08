@@ -226,3 +226,21 @@ canvas{
 }
 
 }
+whiteboard-container canvas{
+
+    display:block;
+
+    width:100%;
+    max-width:100%;
+
+    background:white;
+
+    border-radius:18px;
+
+    border:2px solid #475569;
+
+    box-shadow:
+    0 20px 35px rgba(0,0,0,.25);
+
+    cursor:crosshair;
+}

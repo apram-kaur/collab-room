@@ -11,32 +11,41 @@ function Room() {
   const location = useLocation();
 
   const username = location.state?.username || "Anonymous";
+  const roomName = location.state?.roomName || "Collab Room";
 
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [participants, setParticipants] = useState([]);
+   const [showCopied, setShowCopied] = useState(false);
 
-  useEffect(() => {
-    socket.on("receive-message", (data) => {
-      setMessages((prev) => [...prev, data]);
-    });
+ useEffect(() => {
 
-    socket.on("participants-update", (users) => {
-      setParticipants(users);
-    });
+  socket.on("receive-message", (data) => {
+    setMessages((prev) => [...prev, data]);
+  });
 
-    socket.emit("join-room", {
+  socket.on("participants-update", (users) => {
+    setParticipants(users);
+  });
+
+  socket.emit(
+    "join-room",
+    {
       roomId,
       username,
-    });
+    },
+    () => {}
+  );
 
-    return () => {
-      socket.off("receive-message");
-      socket.off("participants-update");
-    };
-  }, [roomId, username]);
+  return () => {
+    socket.off("receive-message");
+    socket.off("participants-update");
+  };
+
+}, [roomId, username]);
 
   const sendMessage = () => {
+
     if (!message.trim()) return;
 
     socket.emit("send-message", {
@@ -48,7 +57,23 @@ function Room() {
     setMessage("");
   };
 
+  const copyRoomId = async () => {
+  try {
+    await navigator.clipboard.writeText(roomId);
+
+    setShowCopied(true);
+
+    setTimeout(() => {
+      setShowCopied(false);
+    }, 2500);
+
+  } catch (error) {
+    console.error("Failed to copy Room ID:", error);
+  }
+};
+
   return (
+
     <div className="room-container">
 
       {/* ================= HEADER ================= */}
@@ -68,12 +93,24 @@ function Room() {
             <h1>Collab Room</h1>
 
             <div className="room-pill">
-              Room ID • {roomId}
-            </div>
+
+  <span>
+    {roomName} • {roomId}
+  </span>
+
+  <button
+    className="copy-room-btn"
+    onClick={copyRoomId}
+  >
+    📋 Copy
+  </button>
+
+</div>
 
           </div>
 
         </div>
+
 
         <div className="user-card">
 
@@ -96,6 +133,7 @@ function Room() {
 
       </div>
 
+
       {/* ================= TOP SECTION ================= */}
 
       <div className="top-section">
@@ -107,14 +145,19 @@ function Room() {
           <h2>Participants</h2>
 
           <ul>
+
             {participants.map((user) => (
+
               <li key={user.id}>
                 🟢 {user.username}
               </li>
+
             ))}
+
           </ul>
 
         </div>
+
 
         {/* Chat */}
 
@@ -125,14 +168,23 @@ function Room() {
           <div className="chat-box">
 
             {messages.map((msg, index) => (
+
               <p key={index}>
-                <strong>{msg.username}</strong>
+
+                <strong>
+                  {msg.username}
+                </strong>
+
                 <br />
+
                 {msg.message}
+
               </p>
+
             ))}
 
           </div>
+
 
           <div className="chat-input">
 
@@ -152,6 +204,7 @@ function Room() {
 
       </div>
 
+
       {/* ================= WORKSPACE ================= */}
 
       <div className="workspace">
@@ -162,6 +215,7 @@ function Room() {
           <Whiteboard roomId={roomId} />
         </div>
 
+
         {/* Code Editor */}
 
         <div className="editor-section">
@@ -169,8 +223,15 @@ function Room() {
         </div>
 
       </div>
+      {showCopied && (
+  <div className="copy-toast">
+    <span>✓</span>
+    Room ID copied!
+  </div>
+)}
 
     </div>
+
   );
 }
 

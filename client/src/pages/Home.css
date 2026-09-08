@@ -90,6 +90,7 @@ body{
     #c084fc);
 
     -webkit-background-clip:text;
+    background-clip:text;
     -webkit-text-fill-color:transparent;
 }
 
@@ -186,4 +187,346 @@ body{
     color:#a78bfa;
 
     font-size:15px;
+}
+/* =================================
+   CREATE ROOM MODAL
+================================= */
+
+.modal-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    display:flex;
+
+    justify-content:center;
+    align-items:center;
+
+    padding:20px;
+
+    background:
+    rgba(10,5,20,.75);
+
+    backdrop-filter:blur(10px);
+
+    z-index:1000;
+}
+
+
+/* =================================
+   MODAL
+================================= */
+
+.create-modal{
+
+    position:relative;
+
+    width:100%;
+    max-width:500px;
+
+    padding:45px 40px;
+
+    text-align:center;
+
+    background:
+    linear-gradient(
+        135deg,
+        rgba(45,23,68,.96),
+        rgba(25,12,43,.96)
+    );
+
+    border:1px solid rgba(255,255,255,.10);
+
+    border-radius:30px;
+
+    box-shadow:
+    0 30px 80px rgba(0,0,0,.60);
+
+    animation:
+    modalAppear .25s ease;
+}
+
+
+/* =================================
+   MODAL ANIMATION
+================================= */
+
+@keyframes modalAppear{
+
+    from{
+
+        opacity:0;
+
+        transform:
+        translateY(20px)
+        scale(.96);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:
+        translateY(0)
+        scale(1);
+
+    }
+
+}
+
+
+/* =================================
+   CLOSE BUTTON
+================================= */
+
+.close-btn{
+
+    position:absolute;
+
+    top:18px;
+    right:20px;
+
+    width:38px;
+    height:38px;
+
+    border:none;
+
+    border-radius:50%;
+
+    cursor:pointer;
+
+    color:#d8b4fe;
+
+    background:
+    rgba(255,255,255,.06);
+
+    font-size:28px;
+
+    line-height:1;
+
+    transition:.25s;
+}
+
+.close-btn:hover{
+
+    background:
+    rgba(236,72,153,.20);
+
+    color:white;
+
+    transform:
+    rotate(90deg);
+
+}
+
+
+/* =================================
+   MODAL LOGO
+================================= */
+
+.modal-logo{
+
+    width:90px;
+    height:90px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    margin-bottom:18px;
+}
+
+
+/* =================================
+   MODAL TITLE
+================================= */
+
+.create-modal h2{
+
+    margin:0;
+
+    font-family:"Pacifico",cursive;
+
+    font-size:32px;
+
+    background:
+    linear-gradient(
+        90deg,
+        #f9a8d4,
+        #c084fc
+    );
+
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+
+/* =================================
+   SUBTITLE
+================================= */
+
+.modal-subtitle{
+
+    margin:12px 0 30px;
+
+    color:#bfa7d9;
+
+    font-size:15px;
+
+}
+
+
+/* =================================
+   FORM
+================================= */
+
+.form-group{
+
+    text-align:left;
+
+    margin-bottom:22px;
+
+}
+
+.form-group label{
+
+    display:block;
+
+    margin-bottom:9px;
+
+    color:#e9d5ff;
+
+    font-size:14px;
+
+    font-weight:600;
+
+}
+
+.form-group input{
+
+    width:100%;
+
+    padding:16px 18px;
+
+    border:none;
+
+    outline:none;
+
+    border-radius:16px;
+
+    background:#211332;
+
+    color:white;
+
+    border:1px solid rgba(255,255,255,.07);
+
+    font-family:"Inter",sans-serif;
+
+    font-size:15px;
+
+    transition:.25s;
+
+}
+
+.form-group input::placeholder{
+
+    color:#806b99;
+
+}
+
+.form-group input:focus{
+
+    border-color:#c084fc;
+
+    box-shadow:
+    0 0 18px rgba(192,132,252,.18);
+
+}
+
+
+/* =================================
+   CREATE BUTTON
+================================= */
+
+.modal-create-btn{
+
+    width:100%;
+
+    margin-top:8px;
+
+    padding:17px;
+
+    border:none;
+
+    border-radius:17px;
+
+    cursor:pointer;
+
+    color:white;
+
+    font-size:17px;
+
+    font-weight:700;
+
+    background:
+    linear-gradient(
+        135deg,
+        #8b5cf6,
+        #ec4899
+    );
+
+    transition:.3s;
+
+}
+
+.modal-create-btn:hover{
+
+    transform:
+    translateY(-3px);
+
+    box-shadow:
+    0 15px 35px rgba(236,72,153,.35);
+
+}
+
+
+/* =================================
+   RESPONSIVE
+================================= */
+
+@media(max-width:600px){
+
+    .create-modal{
+
+        padding:
+        40px 25px;
+
+    }
+
+    .create-modal h2{
+
+        font-size:27px;
+
+    }
+
+}
+.whiteboard-container canvas{
+
+    display:block;
+
+    width:100%;
+    max-width:100%;
+
+    background:white;
+
+    border-radius:18px;
+
+    border:2px solid #475569;
+
+    box-shadow:
+    0 20px 35px rgba(0,0,0,.25);
+
+    cursor:crosshair;
 }
