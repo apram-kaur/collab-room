@@ -164,7 +164,24 @@ socket.on(
 
   }
 );
+// ==========================================
+// TYPING INDICATOR
+// ==========================================
 
+socket.on("user-typing", (data) => {
+
+  socket.to(data.roomId).emit(
+    "user-typing",
+    data.username
+  );
+socket.on("user-stopped-typing", (data) => {
+
+  socket.to(data.roomId).emit(
+    "user-stopped-typing"
+  );
+
+});
+});
 
   // ==========================================
   // CHAT
@@ -256,7 +273,47 @@ socket.on(
 
     }
 
+  // ==========================================
+  // LEAVE ROOM
+  // ==========================================
 
+  socket.on("leave-room", ({ roomId }) => {
+
+    if (!rooms[roomId]) {
+      return;
+    }
+
+    // Remove user from participant list
+    rooms[roomId].participants =
+      rooms[roomId].participants.filter(
+        (user) => user.id !== socket.id
+      );
+
+    // Leave Socket.io room
+    socket.leave(roomId);
+
+    // Update everyone still in the room
+    io.to(roomId).emit(
+      "participants-update",
+      rooms[roomId].participants
+    );
+
+    console.log(
+      `User ${socket.id} left room ${roomId}`
+    );
+
+    // Delete room if nobody is left
+    if (rooms[roomId].participants.length === 0) {
+
+      delete rooms[roomId];
+
+      console.log(
+        `Room ${roomId} deleted`
+      );
+
+    }
+
+  });
     console.log(
       "User Disconnected:",
       socket.id

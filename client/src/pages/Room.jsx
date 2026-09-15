@@ -1,6 +1,6 @@
 import "./Room.css";
 import { useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import socket from "../socket";
 import Whiteboard from "../components/Whiteboard";
 import CodeEditor from "../components/CodeEditor";
@@ -9,6 +9,7 @@ import mascot from "../assets/mascot1.png";
 function Room() {
   const { roomId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const username = location.state?.username || "Anonymous";
   const roomName = location.state?.roomName || "Collab Room";
@@ -16,64 +17,145 @@ function Room() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [participants, setParticipants] = useState([]);
-   const [showCopied, setShowCopied] = useState(false);
+  const [showCopied, setShowCopied] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [typingUser, setTypingUser] = useState("");
 
- useEffect(() => {
+  // ==========================================
+  // SOCKET CONNECTION
+  // ==========================================
 
-  socket.on("receive-message", (data) => {
-    setMessages((prev) => [...prev, data]);
-  });
+  useEffect(() => {
 
-  socket.on("participants-update", (users) => {
-    setParticipants(users);
-  });
+    const handleReceiveMessage = (data) => {
+      setMessages((prev) => [...prev, data]);
+    };
 
-  socket.emit(
-    "join-room",
-    {
-      roomId,
-      username,
-    },
-    () => {}
-  );
+    const handleParticipantsUpdate = (users) => {
+      setParticipants(users);
+    };
 
-  return () => {
-    socket.off("receive-message");
-    socket.off("participants-update");
-  };
+    // Register listeners FIRST
+    socket.on("receive-message", handleReceiveMessage);
+    socket.on("participants-update", handleParticipantsUpdate);
 
-}, [roomId, username]);
-
-  const sendMessage = () => {
-
-    if (!message.trim()) return;
-
-    socket.emit("send-message", {
-      roomId,
-      username,
-      message,
-    });
-
-    setMessage("");
-  };
-
-  const copyRoomId = async () => {
-  try {
-    await navigator.clipboard.writeText(roomId);
-
-    setShowCopied(true);
-
-    setTimeout(() => {
-      setShowCopied(false);
-    }, 2500);
-
-  } catch (error) {
-    console.error("Failed to copy Room ID:", error);
-  }
+    const handleUserTyping = (username) => {
+  setTypingUser(username);
 };
 
-  return (
+const handleUserStoppedTyping = () => {
+  setTypingUser("");
+};
 
+socket.on("user-typing", handleUserTyping);
+socket.on("user-stopped-typing", handleUserStoppedTyping);
+
+    // THEN join the room
+    socket.emit(
+      "join-room",
+      {
+        roomId,
+        username,
+      },
+      (response) => {
+        console.log("JOIN RESPONSE:", response);
+      }
+    );
+
+    return () => {
+      socket.off("receive-message", handleReceiveMessage);
+      socket.off("participants-update", handleParticipantsUpdate);
+      socket.off("user-typing", handleUserTyping);
+      socket.off("user-stopped-typing", handleUserStoppedTyping);
+    };
+
+  }, [roomId, username]);
+
+  // ==========================================
+  // SEND MESSAGE
+  // ==========================================
+  const handleTyping = (e) => {
+
+  setMessage(e.target.value);
+
+  socket.emit("user-typing", {
+    roomId,
+    username,
+  });
+};
+ const sendMessage = () => {
+  if (!message.trim()) return;
+
+  socket.emit("send-message", {
+    roomId,
+    username,
+    message,
+  });
+
+  // Stop typing indicator
+  socket.emit("user-stopped-typing", {
+    roomId,
+    username,
+  });
+
+  setMessage("");
+};
+
+  // ==========================================
+  // COPY ROOM ID
+  // ==========================================
+
+  const copyRoomId = async () => {
+    try {
+      await navigator.clipboard.writeText(roomId);
+
+      setToastMessage("Room ID copied!");
+      setShowCopied(true);
+
+      setTimeout(() => {
+        setShowCopied(false);
+      }, 2500);
+
+    } catch (error) {
+      console.error("Failed to copy Room ID:", error);
+    }
+  };
+
+  // ==========================================
+  // COPY INVITE LINK
+  // ==========================================
+
+  const copyInviteLink = async () => {
+    try {
+      const inviteLink = window.location.href;
+
+      await navigator.clipboard.writeText(inviteLink);
+
+      setToastMessage("Invite link copied!");
+      setShowCopied(true);
+
+      setTimeout(() => {
+        setShowCopied(false);
+      }, 2500);
+
+    } catch (error) {
+      console.error("Failed to copy invite link:", error);
+    }
+  };
+
+  // ==========================================
+  // LEAVE ROOM
+  // ==========================================
+
+  const leaveRoom = () => {
+    socket.emit("leave-room", {
+      roomId,
+    });
+
+    navigate("/");
+  };
+
+  return (
     <div className="room-container">
 
       {/* ================= HEADER ================= */}
@@ -94,45 +176,61 @@ function Room() {
 
             <div className="room-pill">
 
-  <span>
-    {roomName} • {roomId}
-  </span>
+              <span>
+                {roomName} • {roomId}
+              </span>
 
-  <button
-    className="copy-room-btn"
-    onClick={copyRoomId}
-  >
-    📋 Copy
-  </button>
+              <button
+                className="copy-room-btn"
+                onClick={copyRoomId}
+              >
+                📋 Copy ID
+              </button>
 
-</div>
+              <button
+                className="copy-room-btn invite-btn"
+                onClick={copyInviteLink}
+              >
+                🔗 Invite
+              </button>
+
+            </div>
 
           </div>
 
         </div>
 
+        <div className="header-actions">
 
-        <div className="user-card">
+          <div className="user-card">
 
-          <div className="avatar">
-            {username.charAt(0).toUpperCase()}
+            <div className="avatar">
+              {username.charAt(0).toUpperCase()}
+            </div>
+
+            <div className="user-info">
+
+              <h4>{username}</h4>
+
+              <p>
+                <span className="online-dot"></span>
+                Online
+              </p>
+
+            </div>
+
           </div>
 
-          <div className="user-info">
-
-            <h4>{username}</h4>
-
-            <p>
-              <span className="online-dot"></span>
-              Online
-            </p>
-
-          </div>
+          <button
+            className="leave-room-btn"
+            onClick={leaveRoom}
+          >
+            🚪 Leave
+          </button>
 
         </div>
 
       </div>
-
 
       {/* ================= TOP SECTION ================= */}
 
@@ -158,7 +256,6 @@ function Room() {
 
         </div>
 
-
         {/* Chat */}
 
         <div className="chat">
@@ -166,31 +263,67 @@ function Room() {
           <h2>Chat</h2>
 
           <div className="chat-box">
+            {typingUser && typingUser !== username && (
+  <div className="typing-row">
 
-            {messages.map((msg, index) => (
+    <div className="typing-bubble">
 
-              <p key={index}>
+      <span className="typing-username">
+        {typingUser} is typing
+      </span>
 
-                <strong>
-                  {msg.username}
-                </strong>
+      <div className="typing-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
 
-                <br />
+    </div>
 
-                {msg.message}
+  </div>
+)}
 
-              </p>
+            {messages.map((msg, index) => {
 
-            ))}
+              const isOwnMessage =
+                msg.username === username;
+
+              return (
+                <div
+                  key={index}
+                  className={`message-row ${
+                    isOwnMessage
+                      ? "own-message"
+                      : "other-message"
+                  }`}
+                >
+
+                  <div className="message-bubble">
+
+                    <span className="message-username">
+                      {isOwnMessage
+                        ? "You"
+                        : msg.username}
+                    </span>
+
+                    <p>
+                      {msg.message}
+                    </p>
+
+                  </div>
+
+                </div>
+              );
+
+            })}
 
           </div>
-
 
           <div className="chat-input">
 
             <input
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={handleTyping}
               placeholder="Type a message..."
             />
 
@@ -204,7 +337,6 @@ function Room() {
 
       </div>
 
-
       {/* ================= WORKSPACE ================= */}
 
       <div className="workspace">
@@ -215,7 +347,6 @@ function Room() {
           <Whiteboard roomId={roomId} />
         </div>
 
-
         {/* Code Editor */}
 
         <div className="editor-section">
@@ -223,15 +354,17 @@ function Room() {
         </div>
 
       </div>
+
+      {/* ================= COPY TOAST ================= */}
+
       {showCopied && (
-  <div className="copy-toast">
-    <span>✓</span>
-    Room ID copied!
-  </div>
-)}
+        <div className="copy-toast">
+          <span>✓</span>
+          {toastMessage}
+        </div>
+      )}
 
     </div>
-
   );
 }
 
