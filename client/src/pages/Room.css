@@ -1350,3 +1350,11 @@ input{
     }
 
 }
+.message-time{
+    display:block;
+    margin-top:5px;
+    color:#a78bfa;
+    font-size:10px;
+    text-align:right;
+    opacity:.75;
+}

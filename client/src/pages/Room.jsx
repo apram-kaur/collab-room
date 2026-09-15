@@ -1,5 +1,5 @@
 import "./Room.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import socket from "../socket";
 import Whiteboard from "../components/Whiteboard";
@@ -21,12 +21,15 @@ function Room() {
   const [toastMessage, setToastMessage] = useState("");
   const [typingUser, setTypingUser] = useState("");
 
+  // Used to control the "stopped typing" timer
+  const typingTimeout = useRef(null);
+  const chatBoxRef = useRef(null);
+
   // ==========================================
   // SOCKET CONNECTION
   // ==========================================
 
   useEffect(() => {
-
     const handleReceiveMessage = (data) => {
       setMessages((prev) => [...prev, data]);
     };
@@ -35,20 +38,22 @@ function Room() {
       setParticipants(users);
     };
 
+    const handleUserTyping = (username) => {
+      setTypingUser(username);
+    };
+
+    const handleUserStoppedTyping = () => {
+      setTypingUser("");
+    };
+
     // Register listeners FIRST
     socket.on("receive-message", handleReceiveMessage);
     socket.on("participants-update", handleParticipantsUpdate);
-
-    const handleUserTyping = (username) => {
-  setTypingUser(username);
-};
-
-const handleUserStoppedTyping = () => {
-  setTypingUser("");
-};
-
-socket.on("user-typing", handleUserTyping);
-socket.on("user-stopped-typing", handleUserStoppedTyping);
+    socket.on("user-typing", handleUserTyping);
+    socket.on(
+      "user-stopped-typing",
+      handleUserStoppedTyping
+    );
 
     // THEN join the room
     socket.emit(
@@ -63,43 +68,92 @@ socket.on("user-stopped-typing", handleUserStoppedTyping);
     );
 
     return () => {
-      socket.off("receive-message", handleReceiveMessage);
-      socket.off("participants-update", handleParticipantsUpdate);
-      socket.off("user-typing", handleUserTyping);
-      socket.off("user-stopped-typing", handleUserStoppedTyping);
-    };
+      socket.off(
+        "receive-message",
+        handleReceiveMessage
+      );
 
+      socket.off(
+        "participants-update",
+        handleParticipantsUpdate
+      );
+
+      socket.off(
+        "user-typing",
+        handleUserTyping
+      );
+
+      socket.off(
+        "user-stopped-typing",
+        handleUserStoppedTyping
+      );
+
+      clearTimeout(typingTimeout.current);
+    };
   }, [roomId, username]);
+
+  // ==========================================
+// AUTO-SCROLL CHAT
+// ==========================================
+
+useEffect(() => {
+  if (chatBoxRef.current) {
+    chatBoxRef.current.scrollTop =
+      chatBoxRef.current.scrollHeight;
+  }
+}, [messages, typingUser]);
+
+  // ==========================================
+  // TYPING INDICATOR
+  // ==========================================
+
+  const handleTyping = (e) => {
+    const value = e.target.value;
+
+    setMessage(value);
+
+    // Tell other users that we are typing
+    socket.emit("user-typing", {
+      roomId,
+      username,
+    });
+
+    // Reset previous timer
+    clearTimeout(typingTimeout.current);
+
+    // If user stops typing for 1 second
+    typingTimeout.current = setTimeout(() => {
+      socket.emit("user-stopped-typing", {
+        roomId,
+        username,
+      });
+    }, 1000);
+  };
 
   // ==========================================
   // SEND MESSAGE
   // ==========================================
-  const handleTyping = (e) => {
 
-  setMessage(e.target.value);
+  const sendMessage = () => {
+    if (!message.trim()) return;
 
-  socket.emit("user-typing", {
-    roomId,
-    username,
-  });
-};
- const sendMessage = () => {
-  if (!message.trim()) return;
+    socket.emit("send-message", {
+      roomId,
+      username,
+      message,
+      timestamp: new Date().toISOString(),
+    });
 
-  socket.emit("send-message", {
-    roomId,
-    username,
-    message,
-  });
+    // Stop typing immediately
+    socket.emit("user-stopped-typing", {
+      roomId,
+      username,
+    });
 
-  // Stop typing indicator
-  socket.emit("user-stopped-typing", {
-    roomId,
-    username,
-  });
+    clearTimeout(typingTimeout.current);
 
-  setMessage("");
-};
+    setMessage("");
+  };
 
   // ==========================================
   // COPY ROOM ID
@@ -115,9 +169,11 @@ socket.on("user-stopped-typing", handleUserStoppedTyping);
       setTimeout(() => {
         setShowCopied(false);
       }, 2500);
-
     } catch (error) {
-      console.error("Failed to copy Room ID:", error);
+      console.error(
+        "Failed to copy Room ID:",
+        error
+      );
     }
   };
 
@@ -129,7 +185,9 @@ socket.on("user-stopped-typing", handleUserStoppedTyping);
     try {
       const inviteLink = window.location.href;
 
-      await navigator.clipboard.writeText(inviteLink);
+      await navigator.clipboard.writeText(
+        inviteLink
+      );
 
       setToastMessage("Invite link copied!");
       setShowCopied(true);
@@ -137,9 +195,11 @@ socket.on("user-stopped-typing", handleUserStoppedTyping);
       setTimeout(() => {
         setShowCopied(false);
       }, 2500);
-
     } catch (error) {
-      console.error("Failed to copy invite link:", error);
+      console.error(
+        "Failed to copy invite link:",
+        error
+      );
     }
   };
 
@@ -236,7 +296,7 @@ socket.on("user-stopped-typing", handleUserStoppedTyping);
 
       <div className="top-section">
 
-        {/* Participants */}
+        {/* ================= PARTICIPANTS ================= */}
 
         <div className="participants">
 
@@ -256,32 +316,15 @@ socket.on("user-stopped-typing", handleUserStoppedTyping);
 
         </div>
 
-        {/* Chat */}
+        {/* ================= CHAT ================= */}
 
         <div className="chat">
 
           <h2>Chat</h2>
 
-          <div className="chat-box">
-            {typingUser && typingUser !== username && (
-  <div className="typing-row">
+          <div className="chat-box" ref={chatBoxRef}>
 
-    <div className="typing-bubble">
-
-      <span className="typing-username">
-        {typingUser} is typing
-      </span>
-
-      <div className="typing-dots">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-
-    </div>
-
-  </div>
-)}
+            {/* MESSAGES */}
 
             {messages.map((msg, index) => {
 
@@ -310,6 +353,15 @@ socket.on("user-stopped-typing", handleUserStoppedTyping);
                       {msg.message}
                     </p>
 
+                    <span className="message-time">
+                      {new Date(
+                        msg.timestamp
+                      ).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+
                   </div>
 
                 </div>
@@ -317,7 +369,36 @@ socket.on("user-stopped-typing", handleUserStoppedTyping);
 
             })}
 
+            {/* TYPING INDICATOR */}
+
+            {typingUser &&
+              typingUser !== username && (
+
+                <div className="typing-row">
+
+                  <div className="typing-bubble">
+
+                    <span className="typing-username">
+                      {typingUser} is typing
+                    </span>
+
+                    <div className="typing-dots">
+
+                      <span></span>
+                      <span></span>
+                      <span></span>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              )}
+
           </div>
+
+          {/* CHAT INPUT */}
 
           <div className="chat-input">
 
@@ -358,10 +439,15 @@ socket.on("user-stopped-typing", handleUserStoppedTyping);
       {/* ================= COPY TOAST ================= */}
 
       {showCopied && (
+
         <div className="copy-toast">
+
           <span>✓</span>
+
           {toastMessage}
+
         </div>
+
       )}
 
     </div>
