@@ -306,9 +306,24 @@ useEffect(() => {
 
             {participants.map((user) => (
 
-              <li key={user.id}>
-                🟢 {user.username}
-              </li>
+              <li key={user.id} className="participant-item">
+  <div
+    className="participant-avatar"
+    style={{
+      background: `hsl(${user.username
+        .split("")
+        .reduce(
+          (total, char) =>
+            total + char.charCodeAt(0),
+          0
+        ) % 360}, 70%, 60%)`,
+    }}
+  >
+    {user.username.charAt(0).toUpperCase()}
+  </div>
+
+  <span>{user.username}</span>
+</li>
 
             ))}
 
