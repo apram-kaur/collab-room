@@ -1,3 +1,6 @@
+//require("dotenv").config();
+
+//const connectDB = require("./config/db");
 const rooms = {};
 
 const express = require("express");
@@ -323,11 +326,8 @@ socket.on("user-stopped-typing", (data) => {
 
 });
 
-
 server.listen(PORT, () => {
-
   console.log(
     `Server running on port ${PORT}`
   );
-
 });

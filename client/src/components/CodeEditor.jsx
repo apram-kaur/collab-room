@@ -5,6 +5,7 @@ import socket from "../socket";
 function CodeEditor({ roomId }) {
 
   const [language, setLanguage] = useState("javascript");
+const [showCopyToast, setShowCopyToast] = useState(false);
 
   const [code, setCode] = useState(`// Welcome!
 function hello() {
@@ -31,6 +32,57 @@ function hello() {
       code: updatedCode,
     });
   };
+
+  // SAVE CODE
+  const saveCode = () => {
+
+    const extensions = {
+      javascript: "js",
+      typescript: "ts",
+      python: "py",
+      java: "java",
+      cpp: "cpp",
+      c: "c",
+      html: "html",
+      css: "css",
+      json: "json",
+    };
+
+    const extension = extensions[language] || "txt";
+
+    const blob = new Blob([code], {
+      type: "text/plain",
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `collab-room-code.${extension}`;
+
+    link.click();
+
+    URL.revokeObjectURL(url);
+  };
+
+  // COPY CODE
+  const copyCode = async () => {
+  try {
+    await navigator.clipboard.writeText(code);
+
+    setShowCopyToast(true);
+
+    setTimeout(() => {
+      setShowCopyToast(false);
+    }, 2000);
+
+  } catch (error) {
+    console.error(
+      "Failed to copy code:",
+      error
+    );
+  }
+};
 
   return (
     <div>
@@ -60,6 +112,20 @@ function hello() {
 
         </div>
 
+        <button
+          className="copy-code-btn"
+          onClick={copyCode}
+        >
+          📋 Copy Code
+        </button>
+
+        <button
+          className="save-code-btn"
+          onClick={saveCode}
+        >
+          💾 Save Code
+        </button>
+
       </div>
 
       <Editor
@@ -78,7 +144,12 @@ function hello() {
           automaticLayout: true,
         }}
       />
-
+{showCopyToast && (
+  <div className="copy-code-toast">
+    <span>✓</span>
+    Code copied!
+  </div>
+)}
     </div>
   );
 }
